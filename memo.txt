@@ -1,0 +1,11 @@
+----mob------------------
+
+mobはmake_mob_clsを継承して作り
+そのクラスが入ったリストを
+anything_mob関数のmob_param_listに登録する
+
+消す予定があるmobはlaser_delete()に登録する
+
+
+---map-----------------
+draw_mapに登録する
