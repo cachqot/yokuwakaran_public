@@ -39,11 +39,13 @@ var player = new player_cls();
 var laser_list = []
 
 //enemy
-var enemy = make_mob("enemy",1)
+var enemy = []
 
 //reward
-var reward_list = make_mob("reward",1)
+var reward_list = []
 
+//hole
+var hole_list = []
 
 //mapの数字早見表
 /**
@@ -55,6 +57,7 @@ var reward_list = make_mob("reward",1)
  * 
  * 20: プレイヤーやプレイヤーの味方はここにポイントを持ってくる(味方の陣地)
  * 21: 敵はここにポイントを持ってくる
+ * 
 */
 
 //ゲームのステージマップ
@@ -77,6 +80,71 @@ var game_map = [
     [0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 ]
+
+
+var mob_map = [
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0],
+    [0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+]
+
+//穴に入った時のジャンプ先の座標
+//右上から下へ、右へと読んでいく。その読む順番と穴を対応刺せる
+var hole_jump_pos = [[3,8]]
+
+//ゲームステージを初期化
+//モブなどetcを正しく配置
+game_stage_init()
+
+function game_stage_init(){
+
+    //player
+    player = new player_cls();
+    laser_list = []
+    enemy = []
+    reward_list = []
+    hole_list = []
+
+    for(var i = 0;i < mob_map.length;i++){
+        for(var j = 0;j < mob_map[i].length;j++){
+            switch(mob_map[i][j]){
+                case 1: //enemy
+                    var mob_tmp = new enemy_cls()
+                    mob_tmp.put(j,i)
+                    enemy.push(mob_tmp)
+                    break;
+                case 2: //reward
+                    var mob_tmp = new reward_cls()
+                    mob_tmp.put(j,i)
+                    reward_list.push(mob_tmp)
+                    break;
+                case 3: //hole
+                    var mob_tmp = new hole_cls()
+                    mob_tmp.put(j,i)
+                    var jump_pos = hole_jump_pos[hole_list.length]
+                    mob_tmp.jumpto(jump_pos[0],jump_pos[1])
+                    hole_list.push(mob_tmp)
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
 
 
 //playerのスタート位置を設定
@@ -103,7 +171,8 @@ function anything_mob(){
 
         enemy, //enemy
         laser_list, //laser
-        reward_list //reward
+        reward_list, //reward
+        hole_list //hole list
     ]
 
     //何をやりたいか: キーを押してplayer.move()で準備(初期化)したものをそのまま動かす
@@ -147,6 +216,10 @@ function make_mob(str,num){
         if(str == "reward"){
             list_tmp.push(new reward_cls())
             list_tmp[i].put(10,8)
+        }
+        if(str == "hole"){
+            list_tmp.push(new hole_cls())
+            list_tmp[i].put(0,0)
         }
     }
 

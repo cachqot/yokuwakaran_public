@@ -12,8 +12,9 @@ class make_mob_cls{
         this.s=base_speed/5 //速さ
         this.lv=1
         this.alv=1
-        this.hp=100
+        this.hp=100 //体力
         this.ap=100
+        this.op = 0 //攻撃力
         this.reward = 0
         this.color = "#000000" //色
 
@@ -216,7 +217,7 @@ class player_cls extends make_mob_cls{
         super()
         this.color="#00aaff"
 
-        this.avoid_filter = [1,20,21]
+        this.avoid_filter = [1,20]
     }
 
     avoid_obs(){
@@ -251,7 +252,20 @@ class player_cls extends make_mob_cls{
         switch(game_map[this.by+player_my][this.bx+player_mx]){
             default:
                 break;
-        } 
+        }
+
+        //<--------mob collision----------/
+        
+        //laser
+        for(var i = 0;i < enemy.length;i++){
+            if(enemy[i].bx == this.bx+player_mx && enemy[i].by == this.by+player_my){
+                if(!enemy[i].del){
+                    this.hp -= enemy[i].op
+                    enemy[i].del = true
+                    console.log("ccc")
+                }
+            }
+        }
     }
 
     draw(){
@@ -272,6 +286,7 @@ class enemy_cls extends make_mob_cls{
         this.color = "#ff0000"
         this.del = false //このオブジェクトを消すか消さないか
         this.col_laser = 0;//ぶつかったレーザー
+        this.op = 20;
     }
     collision(){
 
@@ -286,11 +301,14 @@ class enemy_cls extends make_mob_cls{
         //laser
         for(var i = 0;i < laser_list.length;i++){
             if(laser_list[i].bx == this.bx && laser_list[i].by == this.by){
-                this.del = true
-                this.col_laser = i;
-                console.log("aaa")
+                if(!laser_list[i].del){
+                    this.del = true
+                    this.col_laser = i;
+                    console.log("aaa")
+                }
             }
         }
+
     }
 }
 
@@ -337,14 +355,13 @@ class make_laser extends make_mob_cls{
     }
 }
 
-//enemy
+//reward
 class reward_cls extends make_mob_cls{
 
     constructor(){
         super(); //これがないとだめ
         this.color = "#ffff00"
         this.del = false //このオブジェクトを消すか消さないか
-        this.col_laser = 0;//ぶつかったレーザー
     }
     collision(){
 
@@ -361,5 +378,39 @@ class reward_cls extends make_mob_cls{
             this.del = true
             console.log("bbb")
         }
+    }
+}
+
+//hole
+class hole_cls extends make_mob_cls{
+
+    constructor(){
+        super(); //これがないとだめ
+        this.color = "#888888"
+        this.del = false //このオブジェクトを消すか消さないか
+        this.jx = 0 //ジャンプ先の座標
+        this.jy = 0
+    }
+    collision(){
+
+        switch(game_map[this.by][this.bx]){
+            default:
+                break;
+                
+        }
+
+        //<--------mob collision----------/
+        
+        //player
+        if(player.bx+player_mx == this.bx && player.by+player_my == this.by){
+            player.put(this.jx,this.jy)
+            console.log("ddd")
+        }
+    }
+
+    //ジャンプ先の座標を設定
+    jumpto(x,y){
+        this.jx = x
+        this.jy = y
     }
 }
